@@ -17,3 +17,4 @@ screenshot-tmp*.png
 
 # 依赖目录（构建只用到 build/vendor 内的两个文件，不需要 node_modules）
 node_modules/
+_tmpchk/

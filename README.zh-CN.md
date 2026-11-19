@@ -6,7 +6,7 @@
 
 ![license](https://img.shields.io/badge/license-MIT-000000) ![single file](https://img.shields.io/badge/单文件-HTML-000000) ![offline](https://img.shields.io/badge/联网-不需要-000000)
 
-<img src="docs/screenshot-focus.png" alt="专注页" width="100%">
+<img src="docs/demo.gif" alt="flip-pomodoro 运行效果" width="100%">
 
 ---
 
@@ -41,6 +41,8 @@
 
 - **iOS / iPadOS Safari** —— 打开页面 → 分享 → **添加到主屏幕**。从主屏图标启动即为独立全屏窗口，没有地址栏。（iOS 的 Safari 没有 Fullscreen API，这是获得沉浸式的唯一方式。）
 - **Android Chrome** —— 菜单 → **添加到主屏幕**。
+
+<img src="docs/screenshot-mobile.png" alt="手机宽度下的专注页" width="300">
 
 **自己托管** —— 它就是一个静态文件：
 
@@ -90,6 +92,7 @@ flip-pomodoro/
 ├── build/
 │   ├── app.template.html       # 可读源码：结构、样式、逻辑
 │   ├── build.py                # 把依赖与语录内联进 index.html
+│   ├── make_gif.py             # 重新生成 docs/demo.gif（需要 Pillow）
 │   └── vendor/
 │       ├── flipclock.min.js    # FlipClock.js 0.10.8（MIT）
 │       └── flipclock.css

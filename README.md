@@ -6,7 +6,7 @@
 
 ![license](https://img.shields.io/badge/license-MIT-000000) ![single file](https://img.shields.io/badge/build-single%20HTML%20file-000000) ![offline](https://img.shields.io/badge/network-not%20required-000000)
 
-<img src="docs/screenshot-focus.png" alt="Focus screen" width="100%">
+<img src="docs/demo.gif" alt="flip-pomodoro in action" width="100%">
 
 ---
 
@@ -41,6 +41,8 @@ The visual is a real split-flap clock, not a static number: every second the dig
 
 - **iOS/iPadOS Safari** — open the page → Share → *Add to Home Screen*. Launching from the icon gives a standalone fullscreen window with no address bar. (Safari on iOS has no Fullscreen API, so this is the only way to get an immersive view.)
 - **Android Chrome** — menu → *Add to Home screen*.
+
+<img src="docs/screenshot-mobile.png" alt="Focus screen at phone width" width="300">
 
 **Host it yourself** — it is one static file:
 
@@ -90,6 +92,7 @@ flip-pomodoro/
 ├── build/
 │   ├── app.template.html       # readable source: markup, styles, logic
 │   ├── build.py                # inlines vendor CSS/JS and the quote list
+│   ├── make_gif.py             # regenerates docs/demo.gif (needs Pillow)
 │   └── vendor/
 │       ├── flipclock.min.js    # FlipClock.js 0.10.8 (MIT)
 │       └── flipclock.css
