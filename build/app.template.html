@@ -442,9 +442,48 @@ body.goal-mode #btn-pause,body.goal-mode #btn-skip{display:none}
     etaNote.textContent = '共 ' + totalMin + ' 分钟';
   }
 
-  /* ---------------- 音频提示（WebAudio，无外部资源） ---------------- */
+  /* ---------------- 音频提示（玻璃钟声，内联 base64；WebAudio 兜底） ---------------- */
+  var CHIME_BREAK = '/*__CHIME_BREAK__*/';  // 单轮结束：短促清脆
+  var CHIME_DONE = '/*__CHIME_DONE__*/';    // 全部完成：较长余韵
+
+  var chimeBreakAudio = null, chimeDoneAudio = null;
+  function preloadChimes() {
+    // 在用户手势内预加载，规避浏览器自动播放策略
+    try {
+      if (!chimeBreakAudio) {
+        chimeBreakAudio = new Audio(CHIME_BREAK);
+        chimeBreakAudio.preload = 'auto';
+      }
+      if (!chimeDoneAudio) {
+        chimeDoneAudio = new Audio(CHIME_DONE);
+        chimeDoneAudio.preload = 'auto';
+      }
+      // 尝试加载，让浏览器缓存解码后的音频
+      if (chimeBreakAudio.load) chimeBreakAudio.load();
+      if (chimeDoneAudio.load) chimeDoneAudio.load();
+    } catch (e) { /* 降级到 WebAudio */ }
+  }
+
   var audioCtx = null;
   function beep(kind) {
+    // kind: 'done' -> 全部完成（长音）；其余（undefined/'break'）-> 单轮结束（短音）
+    var isDone = kind === 'done';
+    var audio = isDone ? chimeDoneAudio : chimeBreakAudio;
+
+    // 优先播放真实玻璃钟声
+    if (audio) {
+      try {
+        audio.currentTime = 0;   // 支持重复触发
+        var p = audio.play();
+        if (p && p.catch) p.catch(function () { synthFallback(isDone); });
+        return;
+      } catch (e) { /* 落入 WebAudio 兜底 */ }
+    }
+    synthFallback(isDone);
+  }
+
+  function synthFallback(isDone) {
+    // WebAudio 合成音兜底（旧浏览器的电子音）
     try {
       if (!audioCtx) {
         var AC = window.AudioContext || window.webkitAudioContext;
@@ -452,7 +491,7 @@ body.goal-mode #btn-pause,body.goal-mode #btn-skip{display:none}
         audioCtx = new AC();
       }
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      var seq = kind === 'done' ? [660, 880, 1046] : [880, 1046];
+      var seq = isDone ? [660, 880, 1046] : [880, 1046];
       seq.forEach(function (freq, i) {
         var t0 = audioCtx.currentTime + i * 0.16;
         var osc = audioCtx.createOscillator();
@@ -832,6 +871,7 @@ body.goal-mode #btn-pause,body.goal-mode #btn-skip{display:none}
     S.round = 1;
     setQuote();
     enterRun();
+    preloadChimes();
     requestWakeLock();
     requestFullscreenSoft();
 

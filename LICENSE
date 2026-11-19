@@ -22,8 +22,12 @@ SOFTWARE.
 
 ---
 
-Bundled third-party component:
+Bundled third-party components:
 
 FlipClock.js 0.10.8 — https://github.com/objectivehtml/FlipClock
 Copyright (c) Justin Kimbrell
 Released under the MIT License.
+
+Glass chime sounds — Kenney Interface Sounds
+https://kenney.nl/assets/interface-sounds
+Dedicated to the public domain under CC0 1.0 Universal.

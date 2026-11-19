@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-"""组装 flip-pomodoro 单文件应用：内联 FlipClock 依赖与鼓舞人心语录。"""
-import json, re, os
+"""组装 flip-pomodoro 单文件应用：内联 FlipClock 依赖、鼓舞人心语录与提示音。"""
+import json, re, os, base64
 
 BUILD = os.path.dirname(os.path.abspath(__file__))
 BASE = os.path.dirname(BUILD)
 VENDOR = os.path.join(BUILD, 'vendor')
+AUDIO = os.path.join(VENDOR, 'audio')
 
 # 鼓舞人心的中文语录（经典公版格言 + 通用励志语）
 QUOTES = [
@@ -69,6 +70,12 @@ QUOTES = [
 def main():
     quotes_js = json.dumps(QUOTES, ensure_ascii=False, indent=0).replace('\n', '')
 
+    # 提示音：Kenney 玻璃钟声（CC0），裁尾 + 重采样后的紧凑 WAV，转 data URI 内联
+    chime_break = open(os.path.join(AUDIO, 'chime_break.wav'), 'rb').read()
+    chime_done = open(os.path.join(AUDIO, 'chime_done.wav'), 'rb').read()
+    chime_break_uri = 'data:audio/wav;base64,' + base64.b64encode(chime_break).decode('ascii')
+    chime_done_uri = 'data:audio/wav;base64,' + base64.b64encode(chime_done).decode('ascii')
+
     tpl = open(os.path.join(BUILD, 'app.template.html'), encoding='utf-8').read()
 
     # 已内联的依赖：FlipClock.js 0.10.8（MIT）样式与脚本
@@ -81,16 +88,20 @@ def main():
 
     out = tpl.replace('/*__FLIPCLOCK_CSS__*/', css) \
              .replace('/*__FLIPCLOCK_JS__*/', js) \
-             .replace('/*__QUOTES__*/', quotes_js)
+             .replace('/*__QUOTES__*/', quotes_js) \
+             .replace('/*__CHIME_BREAK__*/', chime_break_uri) \
+             .replace('/*__CHIME_DONE__*/', chime_done_uri)
 
     out_path = os.path.join(BASE, 'index.html')
     open(out_path, 'w', encoding='utf-8', newline='\n').write(out)
 
     # 校验未残留占位符
-    for token in ['__FLIPCLOCK_CSS__', '__FLIPCLOCK_JS__', '__QUOTES__']:
+    for token in ['__FLIPCLOCK_CSS__', '__FLIPCLOCK_JS__', '__QUOTES__',
+                  '__CHIME_BREAK__', '__CHIME_DONE__']:
         assert token not in out, '占位符未替换: ' + token
 
     print('quotes:', len(QUOTES))
+    print('chime_break:', len(chime_break), 'bytes; chime_done:', len(chime_done), 'bytes')
     print('index.html bytes:', os.path.getsize(out_path))
     print('single-file OK')
 

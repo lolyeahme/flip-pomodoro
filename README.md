@@ -6,6 +6,8 @@
 
 ![license](https://img.shields.io/badge/license-MIT-000000) ![single file](https://img.shields.io/badge/build-single%20HTML%20file-000000) ![offline](https://img.shields.io/badge/network-not%20required-000000)
 
+**▶ [Try it live](https://flip-pomodoro.app.workbuddy.host/?sharecode=FSR4WGJCKG)**
+
 <img src="docs/demo.gif" alt="flip-pomodoro in action" width="100%">
 
 ---
@@ -29,7 +31,7 @@ The visual is a real split-flap clock, not a static number: every second the dig
 | **Goal mode** | Shows `days:hours:mins:secs` when more than 24 h away, `hours:mins:secs` after. |
 | **Controls** | Pause / resume, skip stage, exit, fullscreen. `Space` pauses, `F` goes fullscreen. |
 | **Screen stays awake** | Uses the Wake Lock API where available. |
-| **Chime** | Synthesized with WebAudio — no audio files shipped. |
+| **Chime** | Real glass-chime sound at stage end (Kenney, CC0), inlined as base64; WebAudio fallback. |
 | **Remembers settings** | Task, durations, cycles and goal date persist in `localStorage`. |
 | **Truly offline** | No CDN, no web fonts, no images, no analytics. |
 
@@ -91,11 +93,13 @@ flip-pomodoro/
 ├── index.html                  # generated — the whole app, one file
 ├── build/
 │   ├── app.template.html       # readable source: markup, styles, logic
-│   ├── build.py                # inlines vendor CSS/JS and the quote list
+│   ├── build.py                # inlines vendor CSS/JS, quotes and audio
 │   ├── make_gif.py             # regenerates docs/demo.gif (needs Pillow)
+│   ├── process_audio.py        # trims + resamples the chime WAVs
 │   └── vendor/
 │       ├── flipclock.min.js    # FlipClock.js 0.10.8 (MIT)
-│       └── flipclock.css
+│       ├── flipclock.css
+│       └── audio/              # glass-chime sources + processed WAVs
 ├── docs/                       # screenshots + design notes
 ├── README.md / README.zh-CN.md
 └── LICENSE
@@ -120,6 +124,7 @@ Card geometry is `4em × 6em` with `0.333em` between cards and `1.5em` per group
 ## Credits
 
 - Flip-clock animation: [FlipClock.js 0.10.8](https://github.com/objectivehtml/FlipClock) by Justin Kimbrell — MIT.
+- Chime sounds: [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds) — CC0 1.0 (public domain), inlined as base64.
 - Quotes: 56 short classical Chinese aphorisms, all public domain, bundled inline.
 - Everything else: plain HTML, CSS and vanilla JavaScript. No framework, no bundler.
 

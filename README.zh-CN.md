@@ -6,6 +6,8 @@
 
 ![license](https://img.shields.io/badge/license-MIT-000000) ![single file](https://img.shields.io/badge/单文件-HTML-000000) ![offline](https://img.shields.io/badge/联网-不需要-000000)
 
+**▶ [在线体验](https://flip-pomodoro.app.workbuddy.host/?sharecode=FSR4WGJCKG)**
+
 <img src="docs/demo.gif" alt="flip-pomodoro 运行效果" width="100%">
 
 ---
@@ -29,7 +31,7 @@
 | **目标日期模式** | 距目标超过 24 小时显示「天:时:分:秒」，否则「时:分:秒」。 |
 | **控制** | 暂停/继续、跳过当前阶段、退出、全屏。空格键暂停，`F` 全屏。 |
 | **屏幕常亮** | 支持 Wake Lock 的浏览器会在专注期间保持屏幕不熄灭。 |
-| **提示音** | WebAudio 实时合成，不带任何音频文件。 |
+| **提示音** | 阶段结束播放真实玻璃钟声（Kenney，CC0，base64 内联），单轮与全部完成音效不同；WebAudio 兜底。 |
 | **记住配置** | 任务名、时长、轮次、目标日期保存在 `localStorage`。 |
 | **真正离线** | 无 CDN、无网络字体、无图片、无统计代码。 |
 
@@ -91,11 +93,13 @@ flip-pomodoro/
 ├── index.html                  # 生成物：完整应用，单文件
 ├── build/
 │   ├── app.template.html       # 可读源码：结构、样式、逻辑
-│   ├── build.py                # 把依赖与语录内联进 index.html
+│   ├── build.py                # 把依赖、语录与提示音内联进 index.html
 │   ├── make_gif.py             # 重新生成 docs/demo.gif（需要 Pillow）
+│   ├── process_audio.py        # 裁尾 + 重采样玻璃钟声 WAV
 │   └── vendor/
 │       ├── flipclock.min.js    # FlipClock.js 0.10.8（MIT）
-│       └── flipclock.css
+│       ├── flipclock.css
+│       └── audio/              # 玻璃钟声源文件与处理后的 WAV
 ├── docs/                       # 截图与设计文档
 ├── README.md / README.zh-CN.md
 └── LICENSE
@@ -105,7 +109,7 @@ flip-pomodoro/
 python build/build.py     # 需要 Python 3.9+，无第三方依赖
 ```
 
-脚本替换三个占位符（`__FLIPCLOCK_CSS__`、`__FLIPCLOCK_JS__`、`__QUOTES__`）并重写 `index.html`。要换语录就改 `build/build.py` 里的 `QUOTES` 列表再构建，不要手改 `index.html`。
+脚本替换五个占位符（`__FLIPCLOCK_CSS__`、`__FLIPCLOCK_JS__`、`__QUOTES__`、`__CHIME_BREAK__`、`__CHIME_DONE__`）并重写 `index.html`。要换语录就改 `build/build.py` 里的 `QUOTES` 列表，要换提示音就替换 `build/vendor/audio/` 下的 WAV，再构建，不要手改 `index.html`。
 
 ## 关于倒计时字号的一个坑
 
@@ -122,6 +126,7 @@ font-size: min(calc((100vw - 40px) / var(--emW, 21.86)), calc(52vh / 6)) !import
 ## 致谢
 
 - 翻页动画：[FlipClock.js 0.10.8](https://github.com/objectivehtml/FlipClock)，作者 Justin Kimbrell，MIT。
+- 提示音：[Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds)，CC0 1.0（公有领域），base64 内联。
 - 语录：56 条短句中文格言，均为公有领域文本，已内联打包。
 - 其余部分：原生 HTML / CSS / JavaScript，无框架、无打包器。
 

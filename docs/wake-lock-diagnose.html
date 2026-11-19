@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>屏幕常亮能力诊断</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#000;color:#e8e8e8;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:24px 20px;min-height:100vh}
+  h1{font-size:20px;letter-spacing:.1em;margin-bottom:6px;color:#fff}
+  .sub{font-size:12px;color:#777;letter-spacing:.06em;margin-bottom:22px}
+  .card{background:#0a0a0a;border:1px solid #222;border-radius:12px;padding:14px 16px;margin-bottom:14px}
+  .card h2{font-size:13px;color:#bbb;letter-spacing:.08em;margin-bottom:10px;font-weight:600}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:14px}
+  .row .k{color:#999}
+  .ok{color:#4ade80;font-weight:700}
+  .no{color:#f87171;font-weight:700}
+  .warn{color:#facc15;font-weight:700}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:#ccc;word-break:break-all}
+  button{width:100%;padding:15px;border-radius:12px;background:#fff;color:#000;font-size:15px;letter-spacing:.2em;font-weight:700;border:none;margin-top:10px;cursor:pointer}
+  button:active{background:#ddd}
+  .note{margin-top:16px;font-size:12px;color:#777;line-height:1.8;letter-spacing:.04em}
+  .note b{color:#ccc}
+</style>
+</head>
+<body>
+  <h1>屏幕常亮能力诊断</h1>
+  <div class="sub">打开本页即可看到当前浏览器的真实支持情况</div>
+
+  <div class="card">
+    <h2>1. Screen Wake Lock API（官方防息屏）</h2>
+    <div class="row"><span class="k">navigator.wakeLock 是否存在</span><span id="wl-exist" class="no">检测中…</span></div>
+    <div class="row"><span class="k">request('screen') 是否可用</span><span id="wl-screen" class="no">检测中…</span></div>
+    <div class="row"><span class="k">实际请求结果</span><span id="wl-result" class="no">检测中…</span></div>
+  </div>
+
+  <div class="card">
+    <h2>2. 浏览器信息</h2>
+    <div class="row" style="align-items:flex-start"><span class="k">User-Agent</span><span class="mono" id="ua" style="max-width:60%;text-align:right">—</span></div>
+    <div class="row"><span class="k">是否全屏 API</span><span id="fs" class="no">—</span></div>
+    <div class="row"><span class="k">页面可见性 API</span><span id="vis" class="no">—</span></div>
+  </div>
+
+  <div class="card">
+    <h2>3. 视频保活兜底（Android 常见 hack）</h2>
+    <div class="row"><span class="k">是否支持内联静音视频</span><span id="video" class="no">检测中…</span></div>
+    <p style="font-size:12px;color:#777;margin-top:8px;line-height:1.7">这是判断能否用「后台播放静音视频」来强制不灭屏的关键。</p>
+  </div>
+
+  <button id="test-btn">点击测试 Wake Lock（需手势）</button>
+
+  <div class="note">
+    <b>怎么看结果：</b><br>
+    · 第 1 项三项全是绿色「✅」→ 官方 API 可用，息屏另有原因（多为系统省电设置）<br>
+    · 「wakeLock 是否存在」为红色「❌」→ 浏览器不支持，这就是息屏根因，需换 Chrome 或加视频保活<br>
+    · 「实际请求结果」为红色 → API 存在但请求被系统拒绝（省电策略）
+  </div>
+
+<script>
+(function(){
+  function set(id, ok, text){
+    var el=document.getElementById(id);
+    el.textContent=text;
+    el.className= ok==='ok'?'ok':(ok==='warn'?'warn':'no');
+  }
+  var UA=navigator.userAgent;
+  document.getElementById('ua').textContent=UA;
+
+  // 1. wake lock
+  var hasWL='wakeLock' in navigator;
+  set('wl-exist', hasWL?'ok':'no', hasWL?'✅ 存在':'❌ 不存在');
+  set('wl-screen', (hasWL && 'request' in navigator.wakeLock)?'ok':'no',
+      (hasWL && 'request' in navigator.wakeLock)?'✅ 可用':'❌ 不可用');
+
+  // 全屏
+  var hasFS = document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen;
+  set('fs', hasFS?'ok':'no', hasFS?'✅ 支持':'❌ 不支持');
+
+  // 可见性
+  set('vis', ('visibilityState' in document)?'ok':'no', ('visibilityState' in document)?'✅ 支持':'❌ 不支持');
+
+  // 视频保活：尝试创建静音视频元素
+  (function(){
+    var v=document.createElement('video');
+    v.muted=true; v.playsInline=true;
+    var can = (v.muted!==undefined) && ('playsInline' in v);
+    set('video', can?'ok':'warn', can?'✅ 支持（可做视频保活）':'⚠️ 需进一步验证');
+  })();
+
+  // 实际请求（需用户手势）
+  document.getElementById('test-btn').addEventListener('click', function(){
+    if(!hasWL){ set('wl-result','no','❌ 无 API，无法请求'); return; }
+    set('wl-result','warn','请求中…');
+    navigator.wakeLock.request('screen').then(function(lock){
+      set('wl-result','ok','✅ 请求成功（已获得锁，可观察是否息屏）');
+      lock.addEventListener('release', function(){
+        set('wl-result','warn','⚠️ 锁被系统释放（省电策略干扰）');
+      });
+    }).catch(function(e){
+      set('wl-result','no','❌ 请求被拒：'+ (e && e.name ? e.name : 'unknown'));
+    });
+  });
+})();
+</script>
+</body>
+</html>
