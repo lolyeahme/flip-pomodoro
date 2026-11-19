@@ -1,0 +1,19 @@
+# 构建与系统临时文件
+__pycache__/
+*.py[cod]
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+
+# 截图临时产物（docs/ 下的正式截图需要提交，不忽略）
+*.tmp
+screenshot-tmp*.png
+
+# 依赖目录（构建只用到 build/vendor 内的两个文件，不需要 node_modules）
+node_modules/
