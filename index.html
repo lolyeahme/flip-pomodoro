@@ -317,7 +317,7 @@ button{cursor:pointer;background:none;border:0}
 /* ---------- 运行页 ---------- */
 #screen-run{justify-content:space-between}
 .run-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
-.task-name{font-size:18px;letter-spacing:.12em;color:#e2e2e2;max-width:62vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task-name{font-size:clamp(13px,1.6vw,17px);letter-spacing:.12em;color:#e2e2e2;max-width:62vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .run-meta{font-size:15px;letter-spacing:.14em;color:var(--dim);text-align:right;white-space:nowrap}
 .run-meta .phase{color:var(--muted)}
 
@@ -391,6 +391,7 @@ body.goal-mode #btn-pause,body.goal-mode #btn-skip{display:none}
 @media (max-width:520px){
   .brand h1{font-size:22px}
   .run-quote .q{font-size:12px}
+  .task-name{font-size:12px}
   .controls button{padding:8px 12px;font-size:11px}
   #screen-run{padding-left:12px;padding-right:12px}
 }
